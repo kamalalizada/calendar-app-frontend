@@ -1,0 +1,65 @@
+<div class="calendar-wrapper">
+
+  <!-- Calendar -->
+  <div class="calendar-container">
+    <div class="calendar-header">
+      <button (click)="prevMonth()">&#8592;</button>
+      <h2>{{ currentDate | date:'MMMM yyyy' }}</h2>
+      <button (click)="nextMonth()">&#8594;</button>
+    </div>
+
+    <div class="calendar-grid">
+      <div 
+        class="calendar-day" 
+        *ngFor="let day of days" 
+        [class.today]="isToday(day)" 
+        (click)="selectDay(day, $event)"
+        [class.disabled]="showForm && selectedDay !== day">
+
+        <div class="day-number">
+          {{ day }}
+          <!-- + düyməsi yalnız seçilmiş gün üçün -->
+          <button *ngIf="selectedDay === day && !showForm" class="add-btn" (click)="openForm($event)">+</button>
+        </div>
+
+        <!-- Hər günün totals -->
+        <div class="totals">
+          <span class="expense-total">-{{ getTotalsForDay(day, 'expense') }} ₼</span>
+          <span class="income-total">+{{ getTotalsForDay(day, 'income') }} ₼</span>
+        </div>
+
+        <!-- Form yalnız seçilmiş gün üçün -->
+        <div *ngIf="showForm && selectedDay === day" class="popup-wrapper" (click)="stopClick($event)">
+          <app-entry-popup 
+            [selectedDay]="day" 
+            (save)="addEntryToCalendar($event)" 
+            (close)="closeForm()">
+          </app-entry-popup>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Side panel: seçilmiş günün detalları -->
+  <div class="side-panel" *ngIf="selectedDay">
+    <h2>{{ selectedDay }} {{ currentDate | date:'MMMM yyyy' }}</h2>
+
+    <h3>Expense</h3>
+    <ul>
+      <li *ngFor="let e of getEntriesForSelectedDay('expense')">
+        {{ getCategoryName(e.entryCategories?.[0]?.categoryId) }} — {{ e.amount }} ₼
+        <span *ngIf="e.note">({{ e.note }})</span>
+      </li>
+    </ul>
+
+    <h3>Income</h3>
+    <ul>
+      <li *ngFor="let e of getEntriesForSelectedDay('income')">
+        {{ getCategoryName(e.entryCategories?.[0]?.categoryId) }} + {{ e.amount }} ₼
+        <span *ngIf="e.note">({{ e.note }})</span>
+      </li>
+    </ul>
+  </div>
+
+</div>

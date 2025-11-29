@@ -1,0 +1,33 @@
+<div class="category-manager">
+  <h3>Category Manager <button class="close-btn" (click)="closeManager()">X</button></h3>
+
+  <div class="categories-container">
+    <div class="category-column">
+      <h4>Expense</h4>
+      <ul>
+        <li *ngFor="let cat of expenseCats">
+          {{ cat.name }}
+          <button class="delete-btn" (click)="delete(cat.id)">🗑️</button>
+        </li>
+      </ul>
+      <div class="add-new">
+        <input type="text" placeholder="Yeni expense" [(ngModel)]="newExpense">
+        <button (click)="add('expense')">+</button>
+      </div>
+    </div>
+
+    <div class="category-column">
+      <h4>Income</h4>
+      <ul>
+        <li *ngFor="let cat of incomeCats">
+          {{ cat.name }}
+          <button class="delete-btn" (click)="delete(cat.id)">🗑️</button>
+        </li>
+      </ul>
+      <div class="add-new">
+        <input type="text" placeholder="Yeni income" [(ngModel)]="newIncome">
+        <button (click)="add('income')">+</button>
+      </div>
+    </div>
+  </div>
+</div>

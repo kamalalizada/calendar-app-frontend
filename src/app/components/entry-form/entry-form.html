@@ -1,0 +1,38 @@
+<div class="entry-popup">
+  <h3>Yeni Entry əlavə et</h3>
+
+  <div class="type-select">
+    <button (click)="selectType('expense')" [class.active]="type==='expense'">Expense</button>
+    <button (click)="selectType('income')" [class.active]="type==='income'">Income</button>
+  </div>
+
+  <div class="amount-note">
+    <input type="number" placeholder="Məbləğ" [(ngModel)]="amount">
+    <input type="text" placeholder="Qeyd" [(ngModel)]="note">
+  </div>
+
+  <div class="category-section">
+    <h4>Category-lar</h4>
+    <div *ngFor="let cat of sortedCategories">
+      <label>
+        <input type="checkbox" [checked]="selectedCategoryIds.includes(cat.id)" 
+               (change)="onCategoryToggle(cat.id, $event)">
+        {{ cat.name }}
+      </label>
+    </div>
+
+    <div *ngIf="showCategoryManager" class="new-category">
+      <input type="text" placeholder="Yeni category" [(ngModel)]="newCategoryName">
+      <button (click)="addNewCategory()">Əlavə et</button>
+    </div>
+
+    <button (click)="toggleCategoryManager()">
+      {{ showCategoryManager ? 'Category-ları bağla' : 'Yeni Category əlavə et' }}
+    </button>
+  </div>
+
+  <div class="form-actions">
+    <button (click)="addEntry()">Save</button>
+    <button (click)="closeForm()">Cancel</button>
+  </div>
+</div>
