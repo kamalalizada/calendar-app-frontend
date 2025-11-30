@@ -10,6 +10,12 @@ interface EntryResponse {
   entryCategories: { categoryId: number }[];
 }
 
+interface Category {
+  id: number;
+  name: string;
+  type: 'expense' | 'income';
+}
+
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.html',
@@ -23,14 +29,18 @@ export class CalendarComponent implements OnInit {
   totalsMap: Map<number, { expense: number; income: number }> = new Map();
 
   selectedDay: number | null = null;
-  showForm: number | null = null;  // hansı günün formu açıqdır
-  showStep: { [day: number]: number } = {}; // step: 1 = type, 2 = amount/note/category
+  showForm: number | null = null;  
 
   type: 'expense' | 'income' = 'expense';
   amount: number = 0;
   note: string = '';
   selectedCategoryIds: number[] = [];
-  sortedCategories: any[] = JSON.parse(localStorage.getItem('categories') || '[]');
+  categories: Category[] = JSON.parse(localStorage.getItem('categories') || '[]');
+
+  // Settings panel
+  panelVisible: boolean = false;
+  selectedTypeForSettings: 'expense' | 'income' = 'expense';
+  newCategoryName: string = "";
 
   constructor(private entryService: EntryService) { }
 
@@ -39,6 +49,7 @@ export class CalendarComponent implements OnInit {
     this.loadEntries();
   }
 
+  // Calendar funksiyaları
   generateCalendar() {
     const end = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
     this.days = [];
@@ -63,27 +74,25 @@ export class CalendarComponent implements OnInit {
 
   selectDay(day: number, event?: Event) {
     if (event) event.stopPropagation();
-    if (this.showForm) return; // form açıqkən dəyişdirmə
+    if (this.showForm) return; 
     this.selectedDay = day;
+  }
+
+  stopClick(event: Event) {
+    event.stopPropagation();
   }
 
   openForm(event: Event, day: number) {
     event.stopPropagation();
     this.showForm = day;
-    this.showStep[day] = 1;
     this.type = 'expense';
     this.amount = 0;
     this.note = '';
     this.selectedCategoryIds = [];
   }
 
-  nextStep(day: number) {
-    this.showStep[day] = 2;
-  }
-
   closeForm() {
     this.showForm = null;
-    this.showStep = {};
   }
 
   selectType(t: 'expense' | 'income') {
@@ -128,7 +137,6 @@ export class CalendarComponent implements OnInit {
       next: (data: EntryResponse[]) => {
         this.entriesMap.clear();
         this.totalsMap.clear();
-
         data.forEach(e => {
           const day = new Date(e.date).getDate();
           if (!this.entriesMap.has(day)) this.entriesMap.set(day, []);
@@ -146,11 +154,7 @@ export class CalendarComponent implements OnInit {
 
   isToday(day: number) {
     const t = new Date();
-    return (
-      day === t.getDate() &&
-      this.currentDate.getMonth() === t.getMonth() &&
-      this.currentDate.getFullYear() === t.getFullYear()
-    );
+    return day === t.getDate() && this.currentDate.getMonth() === t.getMonth() && this.currentDate.getFullYear() === t.getFullYear();
   }
 
   getTotalsForDay(day: number, type: 'expense' | 'income') {
@@ -167,8 +171,29 @@ export class CalendarComponent implements OnInit {
 
   getCategoryName(id: number | undefined) {
     if (!id) return '';
-    const all = JSON.parse(localStorage.getItem('categories') || '[]');
-    const cat = all.find((c: any) => c.id === id);
+    const cat = this.categories.find(c => c.id === id);
     return cat ? cat.name : '';
+  }
+
+  // ===== Settings panel funksiyaları =====
+  togglePanel() {
+    this.panelVisible = !this.panelVisible;
+  }
+
+  getCategoriesByType(type: 'expense' | 'income') {
+    return this.categories.filter(c => c.type === type);
+  }
+
+  addCategory() {
+    if (!this.newCategoryName.trim()) return;
+    const newCat: Category = { id: Date.now(), name: this.newCategoryName.trim(), type: this.selectedTypeForSettings };
+    this.categories.push(newCat);
+    localStorage.setItem('categories', JSON.stringify(this.categories));
+    this.newCategoryName = '';
+  }
+
+  deleteCategory(id: number) {
+    this.categories = this.categories.filter(c => c.id !== id);
+    localStorage.setItem('categories', JSON.stringify(this.categories));
   }
 }

@@ -8,6 +8,7 @@ import { AppComponent } from './app';
 import { CalendarComponent } from './components/calendar/calendar';
 import { CategoryManagerComponent } from './components/category-manager/category-manager';
 import { CommonModule } from '@angular/common';
+import { SettingsComponent } from './components/settings/settings';
 
 
 
@@ -16,7 +17,8 @@ import { CommonModule } from '@angular/common';
     AppComponent,
     CalendarComponent,
     EntryFormComponent,
-    CategoryManagerComponent
+    CategoryManagerComponent,
+    SettingsComponent
   ],
   imports: [
     BrowserModule,

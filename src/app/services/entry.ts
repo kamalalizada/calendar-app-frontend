@@ -5,7 +5,7 @@ import { EntryCreateDto } from '../components/models/entry.model';
 
 @Injectable({ providedIn: 'root' })
 export class EntryService {
-  private api = 'https://localhost:7280/api/Entry';
+  private api = 'https://localhost:7038/api/Entry';
 
   constructor(private http: HttpClient) {}
 

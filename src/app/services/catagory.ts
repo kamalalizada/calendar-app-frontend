@@ -13,7 +13,7 @@ export interface Category {
 })
 export class CategoryService {
 
-  private apiUrl = 'https://localhost:7280/api/Category';
+  private apiUrl = 'https://localhost:7038/api/Category';
 
   constructor(private http: HttpClient) {}
 

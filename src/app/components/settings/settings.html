@@ -1,0 +1,29 @@
+<!-- Ayarlar button -->
+<button class="settings-btn" (click)="togglePanel()">&#9881;</button>
+
+<!-- Panel -->
+<div class="settings-panel" [class.show]="showPanel">
+  <h3>Category Ayarları</h3>
+
+  <!-- Tip seçimi -->
+  <div class="type-select">
+    <button [class.active]="selectedType==='expense'" (click)="selectedType='expense'">Expense</button>
+    <button [class.active]="selectedType==='income'" (click)="selectedType='income'">Income</button>
+  </div>
+
+  <!-- Category list -->
+  <div class="category-list">
+    <ul>
+      <li *ngFor="let cat of getCategoriesByType(selectedType)">
+        {{ cat.name }}
+        <button class="delete-btn" (click)="deleteCategory(cat.id)">✖</button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Yeni category əlavə et -->
+  <div class="add-category">
+    <input type="text" placeholder="Yeni category" [(ngModel)]="newCategoryName">
+    <button (click)="addCategory()">Əlavə et</button>
+  </div>
+</div>

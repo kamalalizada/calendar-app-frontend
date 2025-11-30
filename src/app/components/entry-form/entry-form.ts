@@ -55,33 +55,32 @@ export class EntryFormComponent implements OnInit {
     }
   }
 
-  addEntry() {
-    if (!this.selectedDay || !this.amount || !this.type || this.selectedCategoryIds.length === 0) {
-      console.error("Gün, Məbləğ və Category vacibdir");
-      return;
-    }
+addEntry() {
+  if (!this.type) return;
+  if (!this.selectedCategoryIds.length) return;
+  if (!this.amount || this.amount <= 0) return;
+  if (!this.note || !this.note.trim()) return;
 
-    const dto: EntryCreateDto = {
-      amount: this.amount,
-      type: this.type,
-      note: this.note || "",
-      categoryIds: [...this.selectedCategoryIds],
-      date: `${this.currentDate.getFullYear()}-${(this.currentDate.getMonth() + 1)
-        .toString()
-        .padStart(2, '0')}-${this.selectedDay.toString().padStart(2, '0')}`
-    };
+  const dto: EntryCreateDto = {
+    amount: this.amount,
+    type: this.type,
+    note: this.note.trim(),
+    categoryIds: [...this.selectedCategoryIds],
+    date: `${this.currentDate.getFullYear()}-${(this.currentDate.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${this.selectedDay.toString().padStart(2, '0')}`
+  };
 
-    this.entryService.addEntry(dto).subscribe({
-      next: (res) => {
-        console.log('Saved', res);
-        this.save.emit(res);
-        this.showCategoryManager = false;
-      },
-      error: (err) => {
-        console.error('Save failed', err);
-      }
-    });
-  }
+  this.entryService.addEntry(dto).subscribe({
+    next: (res) => {
+      this.save.emit(res);
+      this.showCategoryManager = false;
+    },
+    error: (err) => console.error("Save failed", err)
+  });
+}
+
+
 
   closeForm() {
     this.close.emit();
