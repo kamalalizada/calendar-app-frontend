@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EntryService } from '../../services/entry';
+import { Category, CategoryService } from '../../services/catagory';
 
 interface EntryResponse {
   id: number;
@@ -10,12 +11,6 @@ interface EntryResponse {
   entryCategories: { categoryId: number }[];
 }
 
-interface Category {
-  id: number;
-  name: string;
-  type: 'expense' | 'income';
-}
-
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.html',
@@ -23,37 +18,36 @@ interface Category {
   standalone: false
 })
 export class CalendarComponent implements OnInit {
+
   currentDate: Date = new Date();
   days: number[] = [];
   entriesMap: Map<number, EntryResponse[]> = new Map();
   totalsMap: Map<number, { expense: number; income: number }> = new Map();
 
   selectedDay: number | null = null;
-  showForm: number | null = null;  
+  showForm: number | null = null;
+  type: 'expense' | 'income' | null = null;
 
-  type: 'expense' | 'income' = 'expense';
   amount: number = 0;
   note: string = '';
   selectedCategoryIds: number[] = [];
-  categories: Category[] = JSON.parse(localStorage.getItem('categories') || '[]');
 
-  // Settings panel
+  categories: Category[] = [];
   panelVisible: boolean = false;
-  selectedTypeForSettings: 'expense' | 'income' = 'expense';
-  newCategoryName: string = "";
+  newCategory: { [key in 'expense' | 'income']: string } = { expense: '', income: '' };
+  showCategoryManager: boolean = false;
 
-  constructor(private entryService: EntryService) { }
+  constructor(private entryService: EntryService, private categoryService: CategoryService) { }
 
   ngOnInit() {
     this.generateCalendar();
     this.loadEntries();
+    this.loadCategories();
   }
 
-  // Calendar funksiyaları
   generateCalendar() {
     const end = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
-    this.days = [];
-    for (let i = 1; i <= end.getDate(); i++) this.days.push(i);
+    this.days = Array.from({ length: end.getDate() }, (_, i) => i + 1);
   }
 
   prevMonth() {
@@ -74,29 +68,41 @@ export class CalendarComponent implements OnInit {
 
   selectDay(day: number, event?: Event) {
     if (event) event.stopPropagation();
-    if (this.showForm) return; 
+    if (this.showForm) return;
     this.selectedDay = day;
   }
 
-  stopClick(event: Event) {
-    event.stopPropagation();
-  }
+  stopClick(event: Event) { event.stopPropagation(); }
 
   openForm(event: Event, day: number) {
     event.stopPropagation();
     this.showForm = day;
-    this.type = 'expense';
+    this.type = null; // type seçilməyincə form gizli
     this.amount = 0;
     this.note = '';
     this.selectedCategoryIds = [];
+    this.showCategoryManager = false;
   }
 
   closeForm() {
     this.showForm = null;
+    this.type = null;
+    this.showCategoryManager = false;
   }
 
-  selectType(t: 'expense' | 'income') {
+  selectTypeAndOpenForm(t: 'expense' | 'income') {
     this.type = t;
+    this.showCategoryManager = false;
+  }
+
+    // Köməkçi funksiya
+  asExpenseOrIncome(t: string): 'expense' | 'income' {
+    if (t === 'expense') return 'expense';
+    return 'income';
+  }
+
+  toggleCategoryManager() {
+    this.showCategoryManager = !this.showCategoryManager;
   }
 
   onCategoryToggle(id: number, event: Event) {
@@ -106,6 +112,8 @@ export class CalendarComponent implements OnInit {
   }
 
   buildEntry(): EntryResponse {
+    if (!this.type) throw new Error("Type seçilməyib!");
+
     return {
       id: Date.now(),
       amount: this.amount,
@@ -116,14 +124,72 @@ export class CalendarComponent implements OnInit {
     };
   }
 
+addEntry() {
+
+  if (!this.type) {
+    alert("Zəhmət olmasa type seçin.");
+    return;
+  }
+
+  if (!this.selectedCategoryIds.length) {
+    alert("Zəhmət olmasa kateqoriya seçin.");
+    return;
+  }
+
+  if (!this.amount || this.amount <= 0) {
+    alert("Məbləğ düzgün deyil.");
+    return;
+  }
+
+  if (!this.note || !this.note.trim()) {
+    alert("Zəhmət olmasa qeyd (note) yazın.");
+    return;
+  }
+
+  // davamı səndə necə idisə qalır...
+
+
+  if (!this.type || !this.selectedDay) return;
+
+  const dto = {
+    amount: this.amount,
+    type: this.type,
+    note: this.note,
+    categoryIds: [...this.selectedCategoryIds],
+    date: `${this.currentDate.getFullYear()}-${(this.currentDate.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${this.selectedDay.toString().padStart(2, '0')}`
+  };
+
+  // Backend-ə göndər
+  this.entryService.addEntry(dto).subscribe({
+    next: (res) => {
+      // Backend-dən gələn cavabı map-ə əlavə et
+      const entry: EntryResponse = {
+        id: res.id || Date.now(),
+        amount: res.amount,
+        type: res.type,
+        note: res.note,
+        date: res.date,
+        entryCategories: res.categoryIds.map((id: number) => ({ categoryId: id }))
+      };
+      this.addEntryToCalendar(entry);
+
+      // Formu bağla
+      this.closeForm();
+    },
+    error: (err) => console.error('Save failed', err)
+  });
+}
+
+
   addEntryToCalendar(entry: EntryResponse) {
     const day = new Date(entry.date).getDate();
     if (!this.entriesMap.has(day)) this.entriesMap.set(day, []);
     this.entriesMap.get(day)!.push(entry);
 
     const totals = this.totalsMap.get(day) || { expense: 0, income: 0 };
-    if (entry.type === 'expense') totals.expense += entry.amount;
-    else totals.income += entry.amount;
+    totals[entry.type] += entry.amount;
     this.totalsMap.set(day, totals);
 
     this.closeForm();
@@ -132,7 +198,6 @@ export class CalendarComponent implements OnInit {
   loadEntries() {
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth() + 1;
-
     this.entryService.getByMonth(year, month).subscribe({
       next: (data: EntryResponse[]) => {
         this.entriesMap.clear();
@@ -143,8 +208,7 @@ export class CalendarComponent implements OnInit {
           this.entriesMap.get(day)!.push(e);
 
           const totals = this.totalsMap.get(day) || { expense: 0, income: 0 };
-          if (e.type === 'expense') totals.expense += e.amount;
-          else totals.income += e.amount;
+          totals[e.type] += e.amount;
           this.totalsMap.set(day, totals);
         });
       },
@@ -159,8 +223,7 @@ export class CalendarComponent implements OnInit {
 
   getTotalsForDay(day: number, type: 'expense' | 'income') {
     const totals = this.totalsMap.get(day);
-    if (!totals) return 0;
-    return type === 'expense' ? totals.expense : totals.income;
+    return totals ? totals[type] : 0;
   }
 
   getEntriesForSelectedDay(type: 'expense' | 'income') {
@@ -175,25 +238,33 @@ export class CalendarComponent implements OnInit {
     return cat ? cat.name : '';
   }
 
-  // ===== Settings panel funksiyaları =====
   togglePanel() {
     this.panelVisible = !this.panelVisible;
+    if (this.panelVisible) this.loadCategories();
+  }
+
+  loadCategories() {
+    this.categoryService.getAll().subscribe(categories => {
+      this.categories = categories;
+    });
   }
 
   getCategoriesByType(type: 'expense' | 'income') {
     return this.categories.filter(c => c.type === type);
   }
 
-  addCategory() {
-    if (!this.newCategoryName.trim()) return;
-    const newCat: Category = { id: Date.now(), name: this.newCategoryName.trim(), type: this.selectedTypeForSettings };
-    this.categories.push(newCat);
-    localStorage.setItem('categories', JSON.stringify(this.categories));
-    this.newCategoryName = '';
+  addCategory(type: 'expense' | 'income') {
+    const name = this.newCategory[type].trim();
+    if (!name) return;
+
+    const newCat: Category = { name, type };
+    this.categoryService.add(newCat).subscribe(() => {
+      this.newCategory[type] = '';
+      this.loadCategories();
+    });
   }
 
   deleteCategory(id: number) {
-    this.categories = this.categories.filter(c => c.id !== id);
-    localStorage.setItem('categories', JSON.stringify(this.categories));
+    this.categoryService.delete(id).subscribe(() => this.loadCategories());
   }
 }

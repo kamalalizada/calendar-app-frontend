@@ -1,62 +1,47 @@
-<div class="entry-popup">
-  <h3>Yeni Entry əlavə et</h3>
+<div class="entry-form">
 
-  <!-- TYPE seçimi -->
+  <h3>{{ selectedDay }} üçün əlavə et</h3>
+  <button class="close-btn" (click)="closeForm()">X</button>
+
+  <!-- Type seçimi -->
   <div class="type-select">
-    <button (click)="selectType('expense')" [class.active]="type==='expense'">Expense</button>
-    <button (click)="selectType('income')" [class.active]="type==='income'">Income</button>
+    <button (click)="selectType('expense')" [class.active]="type === 'expense'">Expense</button>
+    <button (click)="selectType('income')" [class.active]="type === 'income'">Income</button>
   </div>
 
-  <!-- TYPE seçilməyibsə yalnız TYPE-lar görünəcək və Cancel -->
-  <div *ngIf="!type" class="type-step">
-    <div class="form-actions">
-      <button (click)="closeForm()">Cancel</button>
+  <!-- Məbləğ və qeyd -->
+  <div class="form-group">
+    <input type="number" [(ngModel)]="amount" placeholder="Məbləğ" />
+  </div>
+  <div class="form-group">
+    <input type="text" [(ngModel)]="note" placeholder="Qeyd (opsional)" />
+  </div>
+
+  <!-- Kategoriyalar -->
+  <div *ngIf="type" class="category-section">
+    <h4>Kategoriyalar</h4>
+    <div class="categories">
+      <label *ngFor="let cat of sortedCategories">
+        <input type="checkbox" [checked]="selectedCategoryIds.includes(cat.id!)" 
+               (change)="onCategoryToggle(cat.id!, $event)" />
+        {{ cat.name }}
+      </label>
+    </div>
+
+    <!-- Yeni kateqoriya əlavə et -->
+    <button class="toggle-cat-btn" (click)="toggleCategoryManager()">
+      {{ showCategoryManager ? 'Bağla' : 'Yeni kateqoriya əlavə et' }}
+    </button>
+
+    <div *ngIf="showCategoryManager" class="new-category-panel">
+      <input type="text" [(ngModel)]="newCategory[type]" placeholder="Yeni {{ type }}" />
+      <button (click)="addCategory(type)">Əlavə et</button>
     </div>
   </div>
 
-  <!-- TYPE seçilibsə bütün form -->
-  <div *ngIf="type">
-
-    <!-- Category-lar -->
-    <div class="category-section">
-      <h4>Category-lar</h4>
-      <div *ngFor="let cat of sortedCategories">
-        <label>
-          <input type="checkbox" [checked]="selectedCategoryIds.includes(cat.id)"
-            (change)="onCategoryToggle(cat.id, $event)">
-          {{ cat.name }}
-        </label>
-      </div>
-
-      <!-- Yeni Category əlavə etmək -->
-      <div *ngIf="showCategoryManager" class="new-category">
-        <input type="text" placeholder="Yeni category" [(ngModel)]="newCategoryName">
-        <button (click)="addNewCategory()">Əlavə et</button>
-      </div>
-
-      <button (click)="toggleCategoryManager()">
-        {{ showCategoryManager ? 'Category-ları bağla' : 'Yeni Category əlavə et' }}
-      </button>
-    </div>
-
-<div class="amount-note">
-  <input type="number" placeholder="Məbləğ" [(ngModel)]="amount">
-  <span class="error" *ngIf="amount === 0 || amount === undefined">Məbləğ boş ola bilməz</span>
-
-  <input type="text" placeholder="Qeyd" [(ngModel)]="note">
-  <span class="error" *ngIf="!note || !note.trim()">Qeyd boş ola bilməz</span>
-</div>
-
-
-
-<div class="form-actions">
-  <button (click)="addEntry()" 
-          [disabled]="!type || !amount || !note.trim() || selectedCategoryIds.length === 0">
-    Save
-  </button>
-  <button (click)="closeForm()">Cancel</button>
-</div>
-
-
+  <div class="actions">
+    <button (click)="addEntry()">Yadda saxla</button>
+    <button (click)="closeForm()">İmtina</button>
   </div>
+
 </div>

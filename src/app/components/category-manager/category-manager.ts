@@ -20,12 +20,11 @@ export class CategoryManagerComponent implements OnInit {
   constructor(private categoryService: CategoryService) {}
 
   ngOnInit() {
-    
     this.loadCategories();
   }
 
   loadCategories() {
-    this.categoryService.getCategories().subscribe(categories => {
+    this.categoryService.getAll().subscribe(categories => {
       this.expenseCats = categories.filter(c => c.type === 'expense');
       this.incomeCats = categories.filter(c => c.type === 'income');
     });
@@ -35,16 +34,16 @@ export class CategoryManagerComponent implements OnInit {
     const name = type === 'expense' ? this.newExpense.trim() : this.newIncome.trim();
     if (!name) return;
 
-    const newCategory: Category = { id: 0, name, type };
-    this.categoryService.addCategory(newCategory).subscribe(() => {
-      this.newExpense = '';
-      this.newIncome = '';
-      this.loadCategories(); // backend-dən yenilənmiş data al
+    const newCategory = { name, type }; 
+    this.categoryService.add(newCategory).subscribe(() => {
+      if (type === 'expense') this.newExpense = '';
+      else this.newIncome = '';
+      this.loadCategories(); 
     });
   }
 
   delete(id: number) {
-    this.categoryService.deleteCategory(id).subscribe(() => {
+    this.categoryService.delete(id).subscribe(() => {
       this.loadCategories();
     });
   }

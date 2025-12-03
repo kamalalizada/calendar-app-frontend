@@ -1,313 +1,468 @@
-/* Calendar Header */
-.calendar-header {
+/* Calendar Wrapper */
+.calendar-wrapper {
   display: flex;
-  justify-content: center; /* Ay mərkəzdə */
-  align-items: center;
+  gap: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  padding: 20px;
+  background: #f5f7fa;
+  min-height: 100vh;
   position: relative;
-  margin-bottom: 20px;
 }
 
-.calendar-header h2.month-title {
-  margin: 0 50px; /* Oxlar üçün boşluq */
-  font-size: 22px;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.calendar-header .month-btn {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  border: none;
+/* Settings button top-left of calendar */
+.settings-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #fbbf24;
   color: #fff;
-  font-size: 18px;
-  padding: 8px 12px;
+  border: none;
+  padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.calendar-header .month-btn.prev {
-  left: 0;
-}
-
-.calendar-header .month-btn.next {
-  right: 0;
-}
-
-.calendar-header .month-btn:hover {
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  z-index: 50;
+  font-weight: bold;
 }
 
 /* Calendar Container */
 .calendar-container {
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  padding: 25px;
-  flex: 1 1 600px;
-  transition: transform 0.3s ease;
+  flex: 3;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  position: relative;
 }
 
-.calendar-container:hover {
-  transform: translateY(-2px);
+/* Calendar Header: arrows next to month */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  gap: 15px;
 }
 
-/* Calendar Grid */
+.calendar-header button {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.calendar-header button:hover {
+  background: #2563eb;
+}
+
+.calendar-header h2 {
+  font-size: 1.5rem;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Grid layout for weekdays and days */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
+  gap: 8px;
 }
 
-/* Each Day */
+/* Days */
 .calendar-day {
-  background-color: #f3f4f6;
-  border-radius: 12px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease, box-shadow 0.3s ease;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 10px;
   position: relative;
-  min-height: 90px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  min-height: 80px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
 .calendar-day:hover {
-  background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
-  box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+  background: #e2e8f0;
 }
 
-.calendar-day.today {
-  border: 2px solid #4f46e5;
-  background: linear-gradient(135deg, #c7d2fe, #e0e7ff);
-}
-
-.calendar-day.disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-/* Day Number */
 .day-number {
   font-weight: 600;
+  margin-bottom: 5px;
+}
+
+/* Today highlight */
+.calendar-day.today {
+  border: 2px solid #3b82f6;
+}
+
+/* Totals for day */
+.totals {
+  margin-top: 5px;
+  font-size: 0.85rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-}
-
-.add-btn {
-  background: linear-gradient(135deg, #10b981, #059669);
-  border: none;
-  color: #fff;
-  font-size: 16px;
-  padding: 3px 8px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.add-btn:hover {
-  background: linear-gradient(135deg, #059669, #047857);
-}
-
-/* Totals */
-.totals {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .expense-total {
   color: #ef4444;
-  font-weight: 600;
-  background: #fee2e2;
-  padding: 2px 6px;
-  border-radius: 6px;
-  text-align: center;
+  font-weight: bold;
 }
 
 .income-total {
   color: #10b981;
-  font-weight: 600;
-  background: #d1fae5;
-  padding: 2px 6px;
-  border-radius: 6px;
-  text-align: center;
+  font-weight: bold;
 }
 
-/* Popup */
+/* Entry Popup */
 .popup-wrapper {
   position: absolute;
-  top: 50px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 50;
-  width: 220px;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
   padding: 15px;
-  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  margin-top: 5px;
+}
+
+/* Type Select Buttons */
+.type-select button {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.type-select button:hover {
+  background: #2563eb;
+}
+
+/* Entry form styling */
+.entry-form h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.entry-form .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.entry-form .close-btn:hover {
+  background: #dc2626;
+}
+
+.entry-form .form-group {
+  margin-bottom: 10px;
+}
+
+.entry-form input[type="number"],
+.entry-form input[type="text"] {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.95rem;
+  outline: none;
+  transition: 0.2s;
+}
+
+.entry-form input:focus {
+  border-color: #3b82f6;
+}
+
+/* Category Section */
+.category-section {
+  margin-top: 10px;
+}
+
+.categories label {
+  display: block;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.new-category-panel {
+  margin-top: 5px;
+  display: flex;
+  gap: 5px;
+}
+
+.new-category-panel input {
+  flex: 1;
+}
+
+/* Form Actions */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.actions button {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.actions button:hover {
+  background: #2563eb;
 }
 
 /* Side Panel */
 .side-panel {
-  width: 320px;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  padding: 25px;
-  flex-shrink: 0;
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  padding: 15px;
+  height: fit-content;
 }
 
 .side-panel h2 {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 18px;
-  color: #1e293b;
+  margin-bottom: 10px;
 }
 
 .side-panel h3 {
-  font-size: 16px;
-  font-weight: 600;
   margin-top: 15px;
-  margin-bottom: 10px;
-  color: #374151;
+  margin-bottom: 5px;
+  color: #3b82f6;
 }
 
 .side-panel ul {
   list-style: none;
   padding-left: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .side-panel li {
-  padding: 8px 10px;
-  background: linear-gradient(135deg, #fef3c7, #fef9c3);
-  border-radius: 10px;
-  font-size: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-/* Entry Popup Inputs */
-.entry-popup input[type="number"],
-.entry-popup input[type="text"] {
-  width: 100%;
-  padding: 6px 8px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-}
-
-.entry-popup .category-section {
-  margin-top: 10px;
-}
-
-.entry-popup .form-actions {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.settings-btn {
-  position: fixed;
-  left: 10px;
-  top: 10px;
-  background-color: #4f46e5;
-  color: #fff;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  z-index: 100;
-}
-
-.settings-btn:hover {
-  background-color: #4338ca;
-}
-
+/* Settings panel inside calendar */
 .settings-panel {
-  position: fixed;
-  left: 10px;
-  top: 50px;
-  width: 220px;
   background: #fff;
   border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
   padding: 15px;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-  z-index: 99;
+  margin-bottom: 15px;
 }
 
-.settings-panel h3 {
-  margin: 0 0 10px 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.type-toggle button {
-  margin-right: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #f3f4f6;
-}
-
-.type-toggle button.active {
-  background: #4f46e5;
-  color: #fff;
-  border-color: #4f46e5;
-}
-
-.category-list {
-  list-style: none;
-  padding: 0;
-  margin: 10px 0;
+.type-block h4 {
+  margin-bottom: 5px;
+  color: #2563eb;
 }
 
 .category-list li {
   display: flex;
   justify-content: space-between;
-  padding: 5px 0;
-  font-size: 14px;
+  padding: 4px 0;
 }
 
 .delete-cat {
-  background: transparent;
+  background: #ef4444;
   border: none;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 6px;
   cursor: pointer;
-  color: red;
+}
+
+.delete-cat:hover {
+  background: #dc2626;
+}
+
+/* Calendar Day Entries */
+.entries {
+  display: inline-block;
+  margin: 2px 0;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.entries.expense {
+  background: #ef4444; /* Red for expenses */
+}
+
+.entries.income {
+  background: #3b82f6; /* Blue for income */
+}
+
+/* Highlight today */
+.calendar-day.today {
+  border: 2px solid #facc15; /* Yellow/Gold */
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+}
+
+/* Totals */
+.expense-total {
+  color: #ef4444;
   font-weight: bold;
 }
 
-.new-category {
+.income-total {
+  color: #3b82f6;
+  font-weight: bold;
+}
+
+/* Buttons hover effects */
+.calendar-header button:hover,
+.actions button:hover,
+.type-select button:hover {
+  filter: brightness(1.2);
+  transition: 0.2s;
+}
+
+/* Optional: subtle background gradient for days */
+.calendar-day {
+  background: linear-gradient(120deg, #f8fafc, #e2e8f0);
+  transition: all 0.3s ease-in-out;
+}
+
+.calendar-day:hover {
+  background: linear-gradient(120deg, #e0f2fe, #bae6fd);
+}
+
+/* Container for input + button */
+.new-category-panel {
   display: flex;
-  gap: 5px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
 }
 
-.new-category input {
+/* Input box */
+.new-category-panel input {
   flex: 1;
-  padding: 4px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  padding: 6px 10px;
+  border: 2px solid #cbd5e1; /* light gray */
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.new-category button {
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: none;
-  background: #4f46e5;
-  color: #fff;
-  cursor: pointer;
+.new-category-panel input:focus {
+  border-color: #3b82f6; /* blue on focus */
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
 }
+
+/* Əlavə et button */
+.new-category-panel button {
+  padding: 6px 12px;
+  background-color: #3b82f6; /* blue button */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.new-category-panel button:hover {
+  background-color: #2563eb; /* darker blue on hover */
+  transform: scale(1.05);
+}
+/* Ayarlar panel “Əlavə et” button */
+.settings-panel .new-category button {
+  padding: 6px 14px;
+  background-color: #10b981; /* teal green */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.settings-panel .new-category button:hover {
+  background-color: #059669; /* darker green on hover */
+  transform: scale(1.05);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+/* Optional: space between input and button */
+.settings-panel .new-category {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.settings-panel .new-category input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 2px solid #cbd5e1; /* light gray */
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.settings-panel .new-category input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+}
+
+/* "Bağla" button in the entry form */
+.entry-form .actions button:last-child {
+  padding: 6px 14px;
+  background-color: #ef4444; /* red */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.entry-form .actions button:last-child:hover {
+  background-color: #b91c1c; /* darker red on hover */
+  transform: scale(1.05);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+/* "Yeni kateqoriya əlavə et" toggle button */
+.entry-form .toggle-cat-btn {
+  padding: 6px 14px;
+  background-color: #3b82f6; /* blue */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  margin-top: 8px;
+}
+
+.entry-form .toggle-cat-btn:hover {
+  background-color: #1d4ed8; /* darker blue */
+  transform: scale(1.05);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+

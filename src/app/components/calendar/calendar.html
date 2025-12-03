@@ -1,29 +1,29 @@
 <div class="calendar-wrapper">
 
-  <!-- Settings button -->
-  <button class="settings-btn" (click)="togglePanel()">⚙️ Ayarlar</button>
+  
+  <button class="settings-btn" (click)="togglePanel()">⚙️ </button>
 
-  <!-- Settings panel -->
   <div class="settings-panel" *ngIf="panelVisible">
-    <h3>Categories idarə et</h3>
+    <h3>Kateqoriyaları idarə et</h3>
 
-    <div *ngFor="let t of ['expense', 'income'] as const">
-      <h4>{{ t | titlecase }}</h4>
-      <ul class="category-list">
-        <li *ngFor="let cat of getCategoriesByType(t)">
-          {{ cat.name }}
-          <button class="delete-cat" (click)="deleteCategory(cat.id)">✖</button>
-        </li>
-      </ul>
+<div *ngFor="let t of ['expense','income']" class="type-block">
+  <h4>{{ t | titlecase }}</h4>
 
-      <div class="new-category">
-        <input type="text" [(ngModel)]="newCategoryName" placeholder="Yeni category">
-        <button (click)="addCategory()">Əlavə et</button>
-      </div>
-    </div>
+  <ul class="category-list">
+    <li *ngFor="let cat of getCategoriesByType(asExpenseOrIncome(t))">
+      {{ cat.name }}
+      <button class="delete-cat" (click)="deleteCategory(cat.id!)">✖</button>
+    </li>
+  </ul>
+
+  <div class="new-category">
+    <input type="text" [(ngModel)]="newCategory[asExpenseOrIncome(t)]" placeholder="Yeni {{ t }}">
+    <button (click)="addCategory(asExpenseOrIncome(t))">Əlavə et</button>
+  </div>
+</div>
+
   </div>
 
-  <!-- Calendar -->
   <div class="calendar-container">
     <div class="calendar-header">
       <button (click)="prevMonth()">&#8592;</button>
@@ -32,12 +32,13 @@
     </div>
 
     <div class="calendar-grid">
-      <div class="calendar-day" *ngFor="let day of days" [class.today]="isToday(day)" 
+      <div class="calendar-day" *ngFor="let day of days" [class.today]="isToday(day)"
            (click)="selectDay(day, $event)" [class.disabled]="showForm && selectedDay !== day">
 
         <div class="day-number">
           {{ day }}
-          <button *ngIf="selectedDay === day && showForm !== day" class="add-btn" (click)="openForm($event, day)">+</button>
+          <button *ngIf="selectedDay === day && !type && showForm !== day" class="add-btn"
+                  (click)="openForm($event, day)">+</button>
         </div>
 
         <div class="totals" *ngIf="(getTotalsForDay(day,'expense')>0)||(getTotalsForDay(day,'income')>0)">
@@ -50,14 +51,55 @@
         </div>
 
         <div *ngIf="showForm && selectedDay===day" class="popup-wrapper" (click)="stopClick($event)">
-          <app-entry-popup [selectedDay]="day" (save)="addEntryToCalendar($event)" (close)="closeForm()">
-          </app-entry-popup>
+
+          <div *ngIf="!type" class="type-select">
+            <button (click)="selectTypeAndOpenForm('expense')">Expense</button>
+            <button (click)="selectTypeAndOpenForm('income')">Income</button>
+          </div>
+
+          <div *ngIf="type" class="entry-form">
+            <h3>{{ selectedDay }} üçün əlavə et</h3>
+            <button class="close-btn" (click)="closeForm()">X</button>
+
+            <div class="form-group">
+              <input type="number" [(ngModel)]="amount" placeholder="Məbləğ" />
+            </div>
+            <div class="form-group">
+              <input type="text" [(ngModel)]="note" placeholder="Qeyd (opsional)" />
+            </div>
+
+            <div class="category-section">
+              <h4>Kategoriyalar</h4>
+              <div class="categories">
+                <label *ngFor="let cat of getCategoriesByType(type)">
+                  <input type="checkbox" [checked]="selectedCategoryIds.includes(cat.id!)"
+                         (change)="onCategoryToggle(cat.id!, $event)" />
+                  {{ cat.name }}
+                </label>
+              </div>
+
+              <button class="toggle-cat-btn" (click)="toggleCategoryManager()">
+                {{ showCategoryManager ? 'Bağla' : 'Yeni kateqoriya əlavə et' }}
+              </button>
+
+              <div *ngIf="showCategoryManager" class="new-category-panel">
+                <input type="text" [(ngModel)]="newCategory[type]" placeholder="Yeni {{ type }}" />
+                <button (click)="addCategory(type)">Əlavə et</button>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button (click)="addEntry()">Yadda saxla</button>
+              <button (click)="closeForm()">İmtina</button>
+            </div>
+          </div>
+
         </div>
+
       </div>
     </div>
   </div>
 
-  <!-- Side panel: seçilmiş günün detalları -->
   <div class="side-panel" *ngIf="selectedDay">
     <h2>{{ selectedDay }} {{ currentDate | date:'MMMM yyyy' }}</h2>
 

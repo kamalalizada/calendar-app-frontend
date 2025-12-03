@@ -13,8 +13,9 @@ export class EntryFormComponent implements OnInit {
   @Output() save = new EventEmitter<any>();
   @Output() close = new EventEmitter<void>();
   @Input() selectedDay!: number;
+    @Input() type!: 'expense' | 'income';   // <<<<<<==== MÜTLƏQ LAZIMDIR!
 
-  type: 'expense' | 'income' | null = null;
+
   categories: Category[] = [];
   selectedCategoryIds: number[] = [];
   amount!: number;
@@ -22,7 +23,7 @@ export class EntryFormComponent implements OnInit {
   currentDate: Date = new Date(); 
 
   showCategoryManager = false;
-  newCategoryName: string = "";
+  newCategory: { [key in 'expense' | 'income']: string } = { expense: '', income: '' };
 
   constructor(
     private categoryService: CategoryService,
@@ -34,21 +35,21 @@ export class EntryFormComponent implements OnInit {
   }
 
   loadCategories() {
-    this.categoryService.getCategories().subscribe(cats => this.categories = cats);
+    this.categoryService.getAll().subscribe(cats => this.categories = cats);
   }
 
   selectType(type: 'expense' | 'income') {
     this.type = type;
     this.selectedCategoryIds = [];
-    // Form bağlanmır, yalnız type dəyişir
   }
 
   toggleCategoryManager() {
     this.showCategoryManager = !this.showCategoryManager;
   }
 
-  onCategoryToggle(categoryId: number, event: any) {
-    if (event.target.checked) {
+  onCategoryToggle(categoryId: number, event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
       if (!this.selectedCategoryIds.includes(categoryId)) this.selectedCategoryIds.push(categoryId);
     } else {
       this.selectedCategoryIds = this.selectedCategoryIds.filter(id => id !== categoryId);
@@ -56,7 +57,11 @@ export class EntryFormComponent implements OnInit {
   }
 
 addEntry() {
-  if (!this.type) return;
+  if (!this.type) {
+    alert("Zəhmət olmasa, əvvəlcə type seçin (Expense və ya Income).");
+    return;
+  }
+
   if (!this.selectedCategoryIds.length) return;
   if (!this.amount || this.amount <= 0) return;
   if (!this.note || !this.note.trim()) return;
@@ -81,26 +86,23 @@ addEntry() {
 }
 
 
-
   closeForm() {
     this.close.emit();
   }
 
-  addNewCategory() {
-    if (!this.newCategoryName.trim() || !this.type) return;
+  addCategory(type: 'expense' | 'income') {
+    const name = this.newCategory[type].trim();
+    if (!name) return;
 
-    const newCat: Category = { id: 0, name: this.newCategoryName.trim(), type: this.type };
-
-    this.categoryService.addCategory(newCat).subscribe(addedCat => {
-      this.newCategoryName = "";
+    const newCat: Category = { name, type };
+    this.categoryService.add(newCat).subscribe((addedCat: Category) => {
+      this.newCategory[type] = '';
       this.loadCategories();
-      if (addedCat.id) this.selectedCategoryIds.push(addedCat.id);
     });
   }
 
   deleteCategory(id: number) {
-    this.categoryService.deleteCategory(id).subscribe(() => {
-      this.selectedCategoryIds = this.selectedCategoryIds.filter(x => x !== id);
+    this.categoryService.delete(id).subscribe(() => {
       this.loadCategories();
     });
   }
@@ -110,11 +112,10 @@ addEntry() {
     return this.categories.filter(c => c.type === this.type);
   }
 
-  get sortedCategories() {
-    if (!this.displayedCategories) return [];
+  get sortedCategories(): Category[] {
     return [
-      ...this.displayedCategories.filter(cat => this.selectedCategoryIds.includes(cat.id)),
-      ...this.displayedCategories.filter(cat => !this.selectedCategoryIds.includes(cat.id))
+      ...this.displayedCategories.filter(cat => cat.id && this.selectedCategoryIds.includes(cat.id)),
+      ...this.displayedCategories.filter(cat => !cat.id || !this.selectedCategoryIds.includes(cat.id))
     ];
   }
 }
