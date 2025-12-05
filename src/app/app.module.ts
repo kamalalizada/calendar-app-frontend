@@ -9,6 +9,9 @@ import { CalendarComponent } from './components/calendar/calendar';
 import { CategoryManagerComponent } from './components/category-manager/category-manager';
 import { CommonModule } from '@angular/common';
 import { SettingsComponent } from './components/settings/settings';
+import { ReportComponent } from './components/report/report';
+import { NgChartsModule } from 'ng2-charts';
+
 
 
 
@@ -18,14 +21,15 @@ import { SettingsComponent } from './components/settings/settings';
     CalendarComponent,
     EntryFormComponent,
     CategoryManagerComponent,
-    SettingsComponent
+    SettingsComponent,
+    ReportComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    CommonModule
+    NgChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

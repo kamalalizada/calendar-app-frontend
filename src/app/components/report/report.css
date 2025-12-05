@@ -1,0 +1,82 @@
+/* ===== Container ===== */
+.report-container {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: fadeIn 0.5s ease;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Filters Panel ===== */
+.filters {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 25px;
+  padding: 15px 20px;
+  background: rgba(240, 240, 240, 0.7);
+  border-radius: 16px;
+  border: 1px solid rgba(220, 220, 220, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Label styles */
+.filters label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Inputs */
+.filters select,
+.filters input {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background: white;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.filters select:hover,
+.filters input:hover {
+  border-color: #6b9cff;
+}
+
+.filters select:focus,
+.filters input:focus {
+  outline: none;
+  border-color: #4a7bff;
+  box-shadow: 0 0 0 3px rgba(74, 123, 255, 0.25);
+}
+
+/* ===== Chart Wrapper ===== */
+.chart-wrapper {
+  width: 100%;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  border: 1px solid rgba(230, 230, 230, 0.5);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.10);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .filters {
+    flex-direction: column;
+  }
+}

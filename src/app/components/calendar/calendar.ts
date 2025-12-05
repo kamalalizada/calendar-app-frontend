@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { EntryService } from '../../services/entry';
 import { Category, CategoryService } from '../../services/catagory';
+import { Chart } from 'chart.js/auto';
+
 
 interface EntryResponse {
   id: number;
@@ -18,6 +20,7 @@ interface EntryResponse {
   standalone: false
 })
 export class CalendarComponent implements OnInit {
+  @Output() openReport = new EventEmitter<void>();
 
   currentDate: Date = new Date();
   days: number[] = [];
@@ -36,6 +39,12 @@ export class CalendarComponent implements OnInit {
   panelVisible: boolean = false;
   newCategory: { [key in 'expense' | 'income']: string } = { expense: '', income: '' };
   showCategoryManager: boolean = false;
+
+    
+
+  openReportClick() {
+    this.openReport.emit();
+  }
 
   constructor(private entryService: EntryService, private categoryService: CategoryService) { }
 
@@ -267,4 +276,48 @@ addEntry() {
   deleteCategory(id: number) {
     this.categoryService.delete(id).subscribe(() => this.loadCategories());
   }
+
+
+reportVisible: boolean = false;
+chart: any;
+
+
+
+closeReport() {
+  this.reportVisible = false;
+}
+
+
+
+buildReportChart() {
+  // Əvvəlki chartı silək
+  if (this.chart) this.chart.destroy();
+
+  const expense = this.getMonthlyTotal('expense');
+  const income = this.getMonthlyTotal('income');
+
+  const ctx = document.getElementById('reportChart') as HTMLCanvasElement;
+
+  this.chart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Expense', 'Income'],
+      datasets: [{
+        data: [expense, income],
+        backgroundColor: ['#ff4d4d', '#2ecc71'],
+      }]
+    }
+  });
+}
+
+getMonthlyTotal(type: 'expense' | 'income') {
+  let total = 0;
+
+  this.totalsMap.forEach(dayTotals => {
+    total += dayTotals[type];
+  });
+
+  return total;
+}
+
 }

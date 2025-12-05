@@ -1,1 +1,10 @@
-<app-calendar></app-calendar>
+<div class="app-container">
+  <!-- Calendar göstər, Report açılmayanda -->
+  <app-calendar *ngIf="!reportOpen" (openReport)="openReport()"></app-calendar>
+
+  <!-- Report overlay -->
+  <div *ngIf="reportOpen" class="report-overlay">
+    <app-report></app-report>
+    <button class="close-report-btn" (click)="closeReport()">X Bağla</button>
+  </div>
+</div>

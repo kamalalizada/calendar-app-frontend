@@ -1,26 +1,27 @@
 <div class="calendar-wrapper">
 
-  
-  <button class="settings-btn" (click)="togglePanel()">⚙️ </button>
+
+  <button class="settings-btn" (click)="togglePanel()">⚙️ Edit Categories</button>
+<button class="report-btn" (click)="openReportClick()">Report</button>
 
   <div class="settings-panel" *ngIf="panelVisible">
     <h3>Kateqoriyaları idarə et</h3>
 
-<div *ngFor="let t of ['expense','income']" class="type-block">
-  <h4>{{ t | titlecase }}</h4>
+    <div *ngFor="let t of ['expense','income']" class="type-block">
+      <h4>{{ t | titlecase }}</h4>
 
-  <ul class="category-list">
-    <li *ngFor="let cat of getCategoriesByType(asExpenseOrIncome(t))">
-      {{ cat.name }}
-      <button class="delete-cat" (click)="deleteCategory(cat.id!)">✖</button>
-    </li>
-  </ul>
+      <ul class="category-list">
+        <li *ngFor="let cat of getCategoriesByType(asExpenseOrIncome(t))">
+          {{ cat.name }}
+          <button class="delete-cat" (click)="deleteCategory(cat.id!)">✖</button>
+        </li>
+      </ul>
 
-  <div class="new-category">
-    <input type="text" [(ngModel)]="newCategory[asExpenseOrIncome(t)]" placeholder="Yeni {{ t }}">
-    <button (click)="addCategory(asExpenseOrIncome(t))">Əlavə et</button>
-  </div>
-</div>
+      <div class="new-category">
+        <input type="text" [(ngModel)]="newCategory[asExpenseOrIncome(t)]" placeholder="Yeni {{ t }}">
+        <button (click)="addCategory(asExpenseOrIncome(t))">Əlavə et</button>
+      </div>
+    </div>
 
   </div>
 
@@ -32,13 +33,13 @@
     </div>
 
     <div class="calendar-grid">
-      <div class="calendar-day" *ngFor="let day of days" [class.today]="isToday(day)"
-           (click)="selectDay(day, $event)" [class.disabled]="showForm && selectedDay !== day">
+      <div class="calendar-day" *ngFor="let day of days" [class.today]="isToday(day)" (click)="selectDay(day, $event)"
+        [class.disabled]="showForm && selectedDay !== day">
 
         <div class="day-number">
           {{ day }}
           <button *ngIf="selectedDay === day && !type && showForm !== day" class="add-btn"
-                  (click)="openForm($event, day)">+</button>
+            (click)="openForm($event, day)">+</button>
         </div>
 
         <div class="totals" *ngIf="(getTotalsForDay(day,'expense')>0)||(getTotalsForDay(day,'income')>0)">
@@ -55,6 +56,8 @@
           <div *ngIf="!type" class="type-select">
             <button (click)="selectTypeAndOpenForm('expense')">Expense</button>
             <button (click)="selectTypeAndOpenForm('income')">Income</button>
+            <button class="close-btn" (click)="closeForm()">X</button>
+
           </div>
 
           <div *ngIf="type" class="entry-form">
@@ -73,7 +76,7 @@
               <div class="categories">
                 <label *ngFor="let cat of getCategoriesByType(type)">
                   <input type="checkbox" [checked]="selectedCategoryIds.includes(cat.id!)"
-                         (change)="onCategoryToggle(cat.id!, $event)" />
+                    (change)="onCategoryToggle(cat.id!, $event)" />
                   {{ cat.name }}
                 </label>
               </div>
@@ -99,6 +102,19 @@
       </div>
     </div>
   </div>
+
+  <div class="report-modal" *ngIf="reportVisible" (click)="closeReport()">
+    <div class="report-content" (click)="stopClick($event)">
+
+      <h2>Aylıq Maliyyə Reportu</h2>
+      <button class="close-report" (click)="closeReport()">X</button>
+
+      <!-- Chart -->
+      <canvas id="reportChart"></canvas>
+
+    </div>
+  </div>
+
 
   <div class="side-panel" *ngIf="selectedDay">
     <h2>{{ selectedDay }} {{ currentDate | date:'MMMM yyyy' }}</h2>

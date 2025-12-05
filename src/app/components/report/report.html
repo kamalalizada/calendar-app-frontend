@@ -1,0 +1,45 @@
+<div class="report-container">
+
+  <div class="filters">
+    <label>İl:
+      <select [(ngModel)]="selectedYear" (change)="onFilterChange()">
+        <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+      </select>
+    </label>
+
+    <label>Ay:
+      <select [(ngModel)]="selectedMonth" (change)="onFilterChange()">
+        <option *ngFor="let m of months; let i = index" [value]="i+1">{{ m }}</option>
+      </select>
+    </label>
+
+    <label>Gün aralığı:
+      <input
+        type="number"
+        [(ngModel)]="selectedDayFrom"
+        (change)="onFilterChange()"
+        min="1"
+        [max]="lastDayOfMonth"
+      />
+
+      -
+
+      <input
+        type="number"
+        [(ngModel)]="selectedDayTo"
+        (change)="onFilterChange()"
+        [min]="selectedDayFrom"
+        [max]="lastDayOfMonth"
+      />
+    </label>
+  </div>
+
+  <div class="chart-wrapper">
+    <canvas baseChart
+            [data]="chartData"
+            [type]="chartType"
+            [options]="chartOptions">
+    </canvas>
+  </div>
+
+</div>
