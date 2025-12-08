@@ -28,4 +28,10 @@ export class EntryService {
   deleteEntry(id: number): Observable<void> {
     return this.http.delete<void>(`${this.api}/${id}`);
   }
+
+getByYear(year: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.api}/get-by-year/${year}`);
+}
+
+
 }

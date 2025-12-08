@@ -1,8 +1,10 @@
 <div class="calendar-wrapper">
 
-
-  <button class="settings-btn" (click)="togglePanel()">⚙️ Edit Categories</button>
-<button class="report-btn" (click)="openReportClick()">Report</button>
+<div class="header-buttons">
+   <button class="settings-btn" (click)="togglePanel()">⚙️ Edit Categories</button>
+  <button class="report-btn" (click)="openReportClick()">Report</button>
+</div>
+ 
 
   <div class="settings-panel" *ngIf="panelVisible">
     <h3>Kateqoriyaları idarə et</h3>
@@ -109,11 +111,10 @@
       <h2>Aylıq Maliyyə Reportu</h2>
       <button class="close-report" (click)="closeReport()">X</button>
 
-      <!-- Chart -->
-      <canvas id="reportChart"></canvas>
 
     </div>
   </div>
+
 
 
   <div class="side-panel" *ngIf="selectedDay">

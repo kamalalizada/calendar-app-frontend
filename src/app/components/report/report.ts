@@ -22,13 +22,15 @@ export class ReportComponent implements OnInit {
   selectedDayFrom: number = 1;
   selectedDayTo: number = 31;
 
+  // DAILY | MONTHLY mode
+  viewType: 'daily' | 'monthly' = 'daily';
+
   chartType: ChartType = 'bar';
 
- chartData: ChartData<'pie', number[], string> = {
-  labels: [],
-  datasets: []
-};
-
+  chartData: ChartData<'bar' | 'line' | 'pie', number[], string> = {
+    labels: [],
+    datasets: []
+  };
 
   chartOptions: ChartOptions = {
     responsive: true,
@@ -51,80 +53,124 @@ export class ReportComponent implements OnInit {
     for (let y = start; y <= end; y++) this.years.push(y);
   }
 
- loadReport() {
+  // ====================================================
+  // 🔥 MAIN REPORT LOADER
+  // ====================================================
+  loadReport() {
+    if (this.viewType === 'daily') {
+      this.loadDailyReport();
+    } else {
+      this.loadMonthlyReport();
+    }
+  }
 
-  // 🔥 Ayın son gününü düzgün hesablamaq
-  const lastDayOfMonth = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
+  // ====================================================
+  // 🔥 DAILY REPORT (günlük)
+  // ====================================================
+  loadDailyReport() {
+    const lastDayOfMonth = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
 
-  // Gün limitlərini düzəlt
-  if (this.selectedDayFrom < 1) this.selectedDayFrom = 1;
-  if (this.selectedDayTo > lastDayOfMonth) this.selectedDayTo = lastDayOfMonth;
-  if (this.selectedDayTo < this.selectedDayFrom) this.selectedDayTo = this.selectedDayFrom;
+    if (this.selectedDayFrom < 1) this.selectedDayFrom = 1;
+    if (this.selectedDayTo > lastDayOfMonth) this.selectedDayTo = lastDayOfMonth;
+    if (this.selectedDayTo < this.selectedDayFrom) this.selectedDayTo = this.selectedDayFrom;
 
-  this.entryService.getByMonth(this.selectedYear, this.selectedMonth)
-    .subscribe(entries => {
+    this.entryService.getByMonth(this.selectedYear, this.selectedMonth)
+      .subscribe(entries => {
 
-      const maxDays = lastDayOfMonth;
+        const maxDays = lastDayOfMonth;
 
-      const expenseData = new Array(maxDays).fill(0);
-      const incomeData = new Array(maxDays).fill(0);
+        const expenseData = new Array(maxDays).fill(0);
+        const incomeData = new Array(maxDays).fill(0);
 
-      const labels = Array.from({ length: maxDays }, (_, i) => (i + 1).toString());
+        const labels = Array.from({ length: maxDays }, (_, i) => (i + 1).toString());
 
-      const dayFrom = this.selectedDayFrom - 1;
-      const dayTo = this.selectedDayTo - 1;
+        const dayFrom = this.selectedDayFrom - 1;
+        const dayTo = this.selectedDayTo - 1;
+
+        entries.forEach((e: any) => {
+          const dayIndex = new Date(e.date).getDate() - 1;
+
+          if (dayIndex < dayFrom || dayIndex > dayTo) return;
+
+          if (e.type === 'expense') expenseData[dayIndex] += e.amount;
+          else incomeData[dayIndex] += e.amount;
+        });
+
+        this.chartData = {
+          labels: labels.slice(dayFrom, dayTo + 1),
+          datasets: [
+            {
+              label: 'Expense',
+              data: expenseData.slice(dayFrom, dayTo + 1),
+              backgroundColor: '#f87171'
+            },
+            {
+              label: 'Income',
+              data: incomeData.slice(dayFrom, dayTo + 1),
+              backgroundColor: '#34d399'
+            }
+          ]
+        };
+      });
+  }
+
+  // ====================================================
+  // 🔥 MONTHLY REPORT (12 aylıq)
+  // ====================================================
+  loadMonthlyReport() {
+this.entryService.getByYear(this.selectedYear).subscribe((entries: any[]) => {
+
+      const monthlyExpense = new Array(12).fill(0);
+      const monthlyIncome = new Array(12).fill(0);
 
       entries.forEach((e: any) => {
-        const dayIndex = new Date(e.date).getDate() - 1;
-
-        if (dayIndex < dayFrom || dayIndex > dayTo) return;
-
-        if (e.type === 'expense') expenseData[dayIndex] += e.amount;
-        else incomeData[dayIndex] += e.amount;
+        const m = new Date(e.date).getMonth(); // 0-11
+        if (e.type === 'expense') monthlyExpense[m] += e.amount;
+        else monthlyIncome[m] += e.amount;
       });
 
       this.chartData = {
-        labels: labels.slice(dayFrom, dayTo + 1),
+        labels: this.months,
         datasets: [
           {
             label: 'Expense',
-            data: expenseData.slice(dayFrom, dayTo + 1),
+            data: monthlyExpense,
             backgroundColor: '#f87171'
           },
           {
             label: 'Income',
-            data: incomeData.slice(dayFrom, dayTo + 1),
+            data: monthlyIncome,
             backgroundColor: '#34d399'
           }
         ]
       };
     });
-}
+  }
 
-
-onFilterChange() {
-  this.updateDayLimits();
-  this.loadReport();
-}
-
+  // ====================================================
+  // EVENTS
+  // ====================================================
+  onFilterChange() {
+    this.updateDayLimits();
+    this.loadReport();
+  }
 
   onChartTypeChange(type: ChartType) {
     this.chartType = type;
   }
 
   updateDayLimits() {
-  const lastDay = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
+    const lastDay = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
 
-  if (this.selectedDayTo > lastDay) this.selectedDayTo = lastDay;
-  if (this.selectedDayFrom > lastDay) this.selectedDayFrom = lastDay;
+    if (this.selectedDayTo > lastDay) this.selectedDayTo = lastDay;
+    if (this.selectedDayFrom > lastDay) this.selectedDayFrom = lastDay;
 
-  if (this.selectedDayFrom < 1) this.selectedDayFrom = 1;
-  if (this.selectedDayTo < this.selectedDayFrom) this.selectedDayTo = this.selectedDayFrom;
-}
+    if (this.selectedDayFrom < 1) this.selectedDayFrom = 1;
+    if (this.selectedDayTo < this.selectedDayFrom) this.selectedDayTo = this.selectedDayFrom;
+  }
 
-get lastDayOfMonth(): number {
-  return new Date(this.selectedYear, this.selectedMonth, 0).getDate();
-}
+  get lastDayOfMonth(): number {
+    return new Date(this.selectedYear, this.selectedMonth, 0).getDate();
+  }
 
-  
 }

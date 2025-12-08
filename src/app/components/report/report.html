@@ -1,19 +1,43 @@
 <div class="report-container">
 
   <div class="filters">
+
+    <label>Diagram tipi:
+  <select [(ngModel)]="chartType" (change)="onFilterChange()">
+    <option value="bar">Bar</option>
+    <option value="line">Line</option>
+    <option value="polarArea">Polar Area</option>
+  </select>
+</label>
+
+
+    <!-- IL -->
     <label>İl:
       <select [(ngModel)]="selectedYear" (change)="onFilterChange()">
         <option *ngFor="let y of years" [value]="y">{{ y }}</option>
       </select>
     </label>
 
-    <label>Ay:
+    <!-- AY -->
+    <label *ngIf="viewType === 'daily'">Ay:
       <select [(ngModel)]="selectedMonth" (change)="onFilterChange()">
-        <option *ngFor="let m of months; let i = index" [value]="i+1">{{ m }}</option>
+        <option *ngFor="let m of months; let i = index" [value]="i + 1">
+          {{ m }}
+        </option>
       </select>
     </label>
 
-    <label>Gün aralığı:
+    <!-- GÖRÜNTÜ TİPİ (DAILY | MONTHLY) -->
+    <label>
+      Görüntü tipi:
+      <select [(ngModel)]="viewType" (change)="onFilterChange()">
+        <option value="daily">Günlük</option>
+        <option value="monthly">Aylıq</option>
+      </select>
+    </label>
+
+    <!-- GÜN ARALIĞI — yalnız günlük modda -->
+    <label *ngIf="viewType === 'daily'">Gün aralığı:
       <input
         type="number"
         [(ngModel)]="selectedDayFrom"
@@ -32,13 +56,16 @@
         [max]="lastDayOfMonth"
       />
     </label>
+
   </div>
 
+  <!-- CHART -->
   <div class="chart-wrapper">
-    <canvas baseChart
-            [data]="chartData"
-            [type]="chartType"
-            [options]="chartOptions">
+    <canvas
+      baseChart
+      [data]="chartData"
+      [type]="chartType"
+      [options]="chartOptions">
     </canvas>
   </div>
 

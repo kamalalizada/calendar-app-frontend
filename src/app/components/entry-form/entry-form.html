@@ -1,8 +1,6 @@
 <div class="entry-form">
 
   <h3>{{ selectedDay }} üçün əlavə et</h3>
-  <button class="close-btn" (click)="closeForm()">X</button>
-
   <!-- Type seçimi -->
   <div class="type-select">
     <button (click)="selectType('expense')" [class.active]="type === 'expense'">Expense</button>
